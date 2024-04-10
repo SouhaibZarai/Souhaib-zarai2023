@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <style>
+        mark {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Example</h1>
+
+    <input type="text" id="searchInput" placeholder="Search...">
+    <button onclick="clearSearch()">Clear</button>
+    <p id="matchCount"></p>
+    <p id="noResultsMessage"></p>
+
+    <div class="searchable">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    </div>
+    <div class="searchable">
+        <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </div>
+    <div class="searchable">
+        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+    
+    <script>
+        var debounceTimer;
+
+        function debounceSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                performSearch();
+            }, 200);
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            performSearch();
+        }
+
+        function performSearch() {
+            var query = document.getElementById('searchInput').value.trim().toLowerCase();
+            var elements = document.querySelectorAll('.searchable');
+            var matchCount = 0;
+
+            if (query === '') {
+                elements.forEach(function(element) {
+                    element.style.display = 'block';
+                    element.innerHTML = element.textContent;
+                });
+                document.getElementById('matchCount').textContent = '';
+                document.getElementById('noResultsMessage').textContent = '';
+                return;
+            }
+
+            elements.forEach(function(element) {
+                var content = element.textContent.toLowerCase();
+                var elementMatches = false;
+                var regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+
+                if (content.includes(query)) {
+                    elementMatches = true;
+                    matchCount++;
+                }
+
+                if (elementMatches) {
+                    element.innerHTML = content.replace(regex, '<mark>$1</mark>');
+                    element.style.display = 'block';
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+
+            document.getElementById('matchCount').textContent = matchCount + (matchCount === 1 ? ' match found' : ' matches found');
+
+            if (matchCount === 0) {
+                document.getElementById('noResultsMessage').textContent = 'No matches found';
+            } else {
+                document.getElementById('noResultsMessage').textContent = '';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', debounceSearch);
+
+        performSearch();
+    </script>
+</body>
+</html>
